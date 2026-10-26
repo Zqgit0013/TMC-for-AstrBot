@@ -1,3 +1,4 @@
+移植自 DSH 的 tmc 插件”并给原项目链接https://github.com/Raidenei-tech/dsh-plugin/tree/Raidenei-tech-patch-1
 # TMC 聊天记忆（轻量版）for AstrBot
 
 给「只聊天」的机器人用的长期记忆插件。没有工具调用、没有多分区、不挑模型——插件自己记录、自己压缩、自己注入。
