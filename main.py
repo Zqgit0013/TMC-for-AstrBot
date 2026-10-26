@@ -252,6 +252,10 @@ class TmcChatPlugin(Star):
 
         umo = getattr(event, "unified_msg_origin", "") or ""
         first_turn = self._is_first_turn(umo)
+        try:
+            event.set_extra("tmc_llm_turn", True)
+        except Exception:
+            pass
 
         if self._capture() and not message.startswith("/"):
             name = ""
@@ -304,6 +308,41 @@ class TmcChatPlugin(Star):
         text = str(getattr(response, "completion_text", "") or "").strip()
         if text:
             self._append(f"她：{text}")
+
+    def _last_line(self) -> str:
+        for line in reversed(self.store.read("l1").splitlines()):
+            if line.strip():
+                return line.strip()
+        return ""
+
+    @filter.on_decorating_result()
+    async def on_decorating_result(self, event: AstrMessageEvent) -> None:
+        """补记真正发出去的内容：分段发送、主动消息都不会漏。"""
+        if not self._capture():
+            return
+        try:
+            if not event.get_extra("tmc_llm_turn", False):
+                return
+        except Exception:
+            return
+        if not self._allowed(event):
+            return
+        if self.config.get("ignore_groups", False) and event.get_group_id():
+            return
+        result = event.get_result()
+        chain = getattr(result, "chain", None) or []
+        pieces = [str(getattr(part, "text", "") or "") for part in chain]
+        text = re.sub(r"\s+", " ", "".join(pieces)).strip()
+        if not text:
+            return
+        try:
+            event.set_extra("tmc_llm_turn", False)
+        except Exception:
+            pass
+        last = self._last_line()
+        if last.startswith("她：") and (text[:30] in last or last[2:32] in text):
+            return  # 已经在 on_llm_response 记过
+        self._append(f"她：{text}")
 
     # ---------- 指令 ----------
     @filter.command("tmc", alias={"记忆"}, desc="TMC 聊天记忆：状态 / 理解 / 压缩")
