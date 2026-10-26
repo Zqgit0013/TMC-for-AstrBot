@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.zip
+*.log
+
+# 本地记忆数据（不应提交）
+data/
+tests/_tmp/
+chat/

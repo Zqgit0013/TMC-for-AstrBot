@@ -1,0 +1,8 @@
+name: astrbot_plugin_tmc_chat
+display_name: TMC 聊天记忆（轻量）
+desc: 只聊天的长期记忆：自动记录对话、分层压缩归档、每轮注入「对对方的理解 + 相关旧事 + 记忆索引」，不注册工具、不依赖 function calling。
+short_desc: 纯聊天用的分层长期记忆，自动检索不调工具
+version: 0.5.0
+author: TMC
+repo: ""
+astrbot_version: ">=4.16"

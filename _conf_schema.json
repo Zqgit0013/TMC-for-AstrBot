@@ -1,0 +1,134 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "启用聊天记忆",
+    "hint": "关闭后不注入、不记录，已有数据保留。",
+    "default": true
+  },
+  "auto_capture": {
+    "type": "bool",
+    "description": "自动记录对话",
+    "hint": "每轮把你说的话和她的回复写进 L1，后台自动压缩归档。",
+    "default": true
+  },
+  "ignore_groups": {
+    "type": "bool",
+    "description": "只记私聊",
+    "hint": "开启后群聊既不记录也不注入，记忆只来自一对一私聊。",
+    "default": false
+  },
+  "only_users": {
+    "type": "string",
+    "description": "只记这些人",
+    "hint": "留空 = 所有人都记。填 QQ 号，多个用逗号分隔，例如 123456789。填了之后其他人的私聊既不记录也不注入记忆。",
+    "default": ""
+  },
+  "inject": {
+    "type": "bool",
+    "description": "每轮注入记忆",
+    "hint": "把「对对方的理解 + 记忆索引 + 稍早摘要」拼进系统提示词；新会话开头额外带上一段的结尾。",
+    "default": true
+  },
+  "inject_max_chars": {
+    "type": "int",
+    "description": "注入上限（字符）",
+    "hint": "每轮最多注入多少字，默认 1200，约 800 token。调小更省钱，调大记得更多。",
+    "default": 1200
+  },
+  "auto_recall": {
+    "type": "bool",
+    "description": "按消息自动回忆旧事",
+    "hint": "开启后每轮用你说的这句话去档案里本地检索，命中就把摘要和文本片段一起注入——不需要模型调工具，也不额外花 token。",
+    "default": true
+  },
+  "vector_recall": {
+    "type": "bool",
+    "description": "用向量做语义检索",
+    "hint": "开启后归档页会本地转成向量（如 ollama/bge-m3），换个说法也能命中。不消耗 API token，只占一点显存。",
+    "default": true
+  },
+  "embedding_provider_id": {
+    "type": "string",
+    "description": "用哪个向量模型",
+    "hint": "留空则自动用第一个可用的 embedding 提供商。多个时填 ID，例如 ollama/bge-m3。",
+    "default": ""
+  },
+  "keep_index": {
+    "type": "int",
+    "description": "注入几条历史索引",
+    "hint": "从归档里取最近 N 条摘要放进上下文，默认 6 条。有事实卡之后不用太多。",
+    "default": 6
+  },
+  "facts_max_chars": {
+    "type": "int",
+    "description": "事实卡注入上限（字符）",
+    "hint": "每轮最多注入多少字的事实，默认 400，约 300 token。填 0 关闭事实卡。",
+    "default": 400
+  },
+  "facts_limit": {
+    "type": "int",
+    "description": "最多保留几条事实",
+    "hint": "超过就按优先级淘汰：雷点 > 称呼 > 偏好 > 约定 > 事件。默认 24 条。",
+    "default": 24
+  },
+  "facts_block": {
+    "type": "string",
+    "description": "事实黑名单词",
+    "hint": "含这些词的事实会被丢弃，逗号分隔。默认过滤插件、配置、token 这类技术细节。留空则不过滤。",
+    "default": "插件,配置,token,API,命令,目录,文件,注入,模型,ollama,tmc,l1,l2,l3,l4,l5"
+  },
+  "facts_provider_id": {
+    "type": "string",
+    "description": "事实抽取用哪个模型",
+    "hint": "留空则用当前对话模型（推荐，质量最好）。也可以填 deepseek/deepseek-flash 之类单独指定。",
+    "default": ""
+  },
+  "bot_names": {
+    "type": "string",
+    "description": "机器人自己的名字",
+    "hint": "这些名字不会被当成「TA 的称呼」。填机器人自己的昵称/自称，逗号分隔，例如 小助手,AI。留空则不过滤。",
+    "default": ""
+  },
+  "l1_max": {
+    "type": "int",
+    "description": "L1 上限（字符）",
+    "hint": "最近对话攒到这么多字就压进 L2，默认 1200。",
+    "default": 1200
+  },
+  "line_max_chars": {
+    "type": "int",
+    "description": "单条消息最多记多少字",
+    "hint": "她的回复可能很长，只记前 N 个字，避免一条就占满 L1。默认 300。",
+    "default": 300
+  },
+  "archive_raw": {
+    "type": "bool",
+    "description": "保存逐字原文",
+    "hint": "压缩前把 L1 原文追加到 chat/raw/日期.md，永久保留完整对话。只占磁盘，不注入、不花 token。",
+    "default": true
+  },
+  "l2_max": {
+    "type": "int",
+    "description": "L2 上限（字符）",
+    "hint": "摘要再攒到这么多字就归档成索引+原文，并重算「对对方的理解」，默认 2000。",
+    "default": 2000
+  },
+  "tick_interval": {
+    "type": "int",
+    "description": "压缩间隔（秒）",
+    "hint": "后台多久检查一次，默认 60 秒。只有超阈值时才会真正调模型。",
+    "default": 60
+  },
+  "llm_provider_id": {
+    "type": "string",
+    "description": "后台压缩用哪个模型",
+    "hint": "填提供商 ID（服务提供商页面里那串 id），留空则用当前对话模型。压缩、索引、事实抽取、理解重算都会走它，配个便宜的能省一半。",
+    "default": ""
+  },
+  "base_dir": {
+    "type": "string",
+    "description": "记忆目录",
+    "hint": "留空则用 data/plugin_data/astrbot_plugin_tmc_chat/chat。",
+    "default": ""
+  }
+}
